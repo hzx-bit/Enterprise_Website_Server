@@ -3,10 +3,9 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-
+const JWT = require('./util/JWT');
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-
+const UserRouter = require('./routes/admin/UserRouter')
 var app = express();
 
 // view engine setup
@@ -20,8 +19,27 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
-
+app.use((req,res,next)=>{
+  if(req.url==='/adminapi/user/login'){
+    next();
+    return;
+  }
+  const token = req.headers.authorization?.split(' ')[1];
+  if(token){
+    const payload = JWT.verify(token);
+    if(payload){
+      const newToken = JWT.generate({
+        _id:payload._id,
+        username:payload.username
+      },'1d');
+      res.header('Authorization',newToken);
+      next();
+      return;
+    }
+  }
+  res.status(401).send({errcode:'-1',message:"token失效，请重新登录"});
+})
+app.use(UserRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));

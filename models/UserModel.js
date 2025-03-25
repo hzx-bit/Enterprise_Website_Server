@@ -10,4 +10,4 @@ const UserType = {
     role:Number,//管理员1、编辑2
 }
 const UserModel = mongoose.model('user',new Schema(UserType))
-Module.exports = UserModel
+module.exports = UserModel
