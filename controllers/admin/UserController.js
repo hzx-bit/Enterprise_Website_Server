@@ -28,9 +28,30 @@ const UserController = {
     },
     upload:async(req,res)=>{
         const {username,gender,introduction} = req.body;
+        const avatar =req.file? `${process.env.API_ADDRESS}/avataruploads/${req.file.filename}`:'';
         const token = req.headers.authorization?.split(' ')[1];
         const payload = JWT.verify(token);
-        const res = await UserService.upload({username,gender:Number(gender),introduction,_id:payload._id})
+        await UserService.upload({username,gender:Number(gender),introduction,_id:payload._id,avatar})
+        if(avatar){
+            res.send({
+                ActionType:"ok",
+                data:{
+                    username,
+                    gender:Number(gender),
+                    introduction,
+                    avatar
+                }
+            })
+        }else{
+            res.send({
+                ActionType:"ok",
+                data:{
+                    username,
+                    gender:Number(gender),
+                    introduction
+                }
+            })
+        }
     }
 }
 
