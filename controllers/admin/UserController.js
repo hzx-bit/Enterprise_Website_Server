@@ -20,7 +20,7 @@ const UserController = {
                     username:result[0].username,
                     gender:result[0].gender? result.gender:0,
                     introduction:result[0].introduction,
-                    avator:result[0].avator,
+                    avatar:result[0].avatar,
                     role:result[0].role
                 }
             })
@@ -52,7 +52,35 @@ const UserController = {
                 }
             })
         }
-    }
+    },
+    add:async(req,res)=>{
+        const {username,password,gender,role,introduction} = req.body;
+        const avatar =req.file? `${process.env.API_ADDRESS}/avataruploads/${req.file.filename}`:'';
+        await UserService.add({username,password,gender:Number(gender),role:Number(role),introduction,avatar})
+        res.send({
+            ActionType:'ok'
+        });  
+    },
+    getList:async(req,res)=>{
+        const result = await UserService.getList(req.params);
+        res.send({
+            ActionType:'ok',
+            data:result
+        })
+    },
+    deleteUser:async(req,res)=>{
+        await UserService.deleteUser({_id:req.params.id})
+        res.send({
+            ActionType:'ok'
+        })
+    },
+    editUser:async(req,res)=>{
+        const data = await UserService.editUser(req.body)
+        res.send({
+            ActionType:'ok',
+            data
+        })
+    },
 }
 
 module.exports = UserController
